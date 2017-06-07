@@ -1,0 +1,7 @@
+services:
+    oro_datasnap.behat.extension.isolation.database:
+        class: 'Oro\Bundle\DatabaseSnapshotBundle\Isolator\Behat\DatabaseBehatIsolator'
+        lazy: true
+        arguments:
+            - '@oro_datasnap.isolation.isolator.registry'
+            - '%installed%'

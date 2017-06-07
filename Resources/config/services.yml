@@ -1,0 +1,31 @@
+imports:
+    - { resource: behat_services.yml }
+
+services:
+    oro_datasnap.isolation.process_executor:
+        public: false
+        class: 'Oro\Bundle\DatabaseSnapshotBundle\Service\ProcessExecutor'
+
+    oro_datasnap.isolation.isolator.pdo_mysql:
+        class: 'Oro\Bundle\DatabaseSnapshotBundle\Isolator\Database\MysqlDatabaseIsolator'
+        public: false
+        arguments:
+            - '@oro_datasnap.isolation.process_executor'
+        tags:
+            - {name: oro.database.isolator, alias: pdo_mysql}
+
+    oro_datasnap.isolation.isolator.pdo_pgsql:
+        class: 'Oro\Bundle\DatabaseSnapshotBundle\Isolator\Database\PgsqlDatabaseIsolator'
+        public: false
+        arguments:
+            - '@oro_datasnap.isolation.process_executor'
+        tags:
+            - {name: oro.database.isolator, alias: pdo_pgsql}
+
+    oro_datasnap.isolation.isolator.registry:
+        class: 'Oro\Bundle\DatabaseSnapshotBundle\Service\IsolatorRegistry'
+        lazy: true
+        #TODO : replace with compiller pass with priorities
+        calls:
+            - ['addIsolator',['@oro_datasnap.isolation.isolator.pdo_mysql', 'pdo_mysql']]
+            - ['addIsolator',['@oro_datasnap.isolation.isolator.pdo_pgsql', 'pdo_pgsql']]
