@@ -41,4 +41,9 @@ interface DatabaseConfigurationInterface
      * @return string
      */
     public function getDbName();
+
+    /**
+     * @return int
+     */
+    public function getTimeout();
 }

@@ -57,90 +57,100 @@ class MysqlDatabaseIsolator extends AbstractDatabaseIsolator
     /**
      * {@inheritdoc}
      */
-    public function dump($id, DatabaseConfigurationInterface $databaseConfiguration)
+    public function dump($id, DatabaseConfigurationInterface $config)
     {
-        if ($databaseConfiguration->getPassword()) {
-            putenv(sprintf('MYSQL_PWD=%s', $databaseConfiguration->getPassword()));
+        if ($config->getPassword()) {
+            putenv(sprintf('MYSQL_PWD=%s', $config->getPassword()));
         }
 
-        $database = $this->getBackupDbName($id, $databaseConfiguration);
+        $database = $this->getBackupDbName($id, $config);
 
-        $user = $this->resolveUser($databaseConfiguration);
-        $host = $this->resolveHost($databaseConfiguration);
-        $port = $this->resolvePort($databaseConfiguration);
+        $user = $this->resolveUser($config);
+        $host = $this->resolveHost($config);
+        $port = $this->resolvePort($config);
 
-        if ($this->verify($databaseConfiguration->getDbName(), $databaseConfiguration)) {
-            $this->drop($database, $databaseConfiguration);
-            $this->processExecutor->execute($this->getCreateDatabaseCommand($user, $host, $port, $database));
+        if ($this->verify($config->getDbName(), $config)) {
+            $this->drop($database, $config);
             $this->processExecutor->execute(
-                $this->getDumpCommand($user, $host, $port, $databaseConfiguration->getDbName(), $database)
+                $this->getCreateDatabaseCommand($user, $host, $port, $database),
+                $config->getTimeout()
+            );
+            $this->processExecutor->execute(
+                $this->getDumpCommand($user, $host, $port, $config->getDbName(), $database),
+                $config->getTimeout()
             );
         } else {
-            throw new \Exception(sprintf('Verification failed for "%s"', $databaseConfiguration->getDbName()));
+            throw new \Exception(sprintf('Verification failed for "%s"', $config->getDbName()));
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function restore($id, DatabaseConfigurationInterface $databaseConfiguration)
+    public function restore($id, DatabaseConfigurationInterface $config)
     {
-        if ($databaseConfiguration->getPassword()) {
-            putenv(sprintf('MYSQL_PWD=%s', $databaseConfiguration->getPassword()));
+        if ($config->getPassword()) {
+            putenv(sprintf('MYSQL_PWD=%s', $config->getPassword()));
         }
 
-        $database = $this->getBackupDbName($id, $databaseConfiguration);
+        $database = $this->getBackupDbName($id, $config);
 
-        $user = $this->resolveUser($databaseConfiguration);
-        $host = $this->resolveHost($databaseConfiguration);
-        $port = $this->resolvePort($databaseConfiguration);
+        $user = $this->resolveUser($config);
+        $host = $this->resolveHost($config);
+        $port = $this->resolvePort($config);
 
-        if ($this->verify($database, $databaseConfiguration)) {
-            $this->drop($databaseConfiguration->getDbName(), $databaseConfiguration);
+        if ($this->verify($database, $config)) {
+            $this->drop($config->getDbName(), $config);
             $this->processExecutor->execute(
-                $this->getCreateDatabaseCommand($user, $host, $port, $databaseConfiguration->getDbName())
+                $this->getCreateDatabaseCommand($user, $host, $port, $config->getDbName()),
+                $config->getTimeout()
             );
             $this->processExecutor->execute(
-                $this->getDumpCommand($user, $host, $port, $database, $databaseConfiguration->getDbName())
+                $this->getDumpCommand($user, $host, $port, $database, $config->getDbName()),
+                $config->getTimeout()
             );
         } else {
-            throw new \Exception(sprintf('Verification failed for "%s"', $databaseConfiguration->getDbName()));
+            throw new \Exception(sprintf('Verification failed for "%s"', $config->getDbName()));
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function drop($name, DatabaseConfigurationInterface $databaseConfiguration)
+    public function drop($name, DatabaseConfigurationInterface $config)
     {
-        if ($databaseConfiguration->getPassword()) {
-            putenv(sprintf('MYSQL_PWD=%s', $databaseConfiguration->getPassword()));
+        if ($config->getPassword()) {
+            putenv(sprintf('MYSQL_PWD=%s', $config->getPassword()));
         }
 
-        $user = $this->resolveUser($databaseConfiguration);
-        $host = $this->resolveHost($databaseConfiguration);
-        $port = $this->resolvePort($databaseConfiguration);
+        $user = $this->resolveUser($config);
+        $host = $this->resolveHost($config);
+        $port = $this->resolvePort($config);
 
         $this->processExecutor->execute(
-            $this->getDropDatabaseCommand($user, $host, $port, $name)
+            $this->getDropDatabaseCommand($user, $host, $port, $name),
+            $config->getTimeout()
         );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function verify($name, DatabaseConfigurationInterface $databaseConfiguration)
+    public function verify($name, DatabaseConfigurationInterface $config)
     {
-        if ($databaseConfiguration->getPassword()) {
-            putenv(sprintf('MYSQL_PWD=%s', $databaseConfiguration->getPassword()));
+        if ($config->getPassword()) {
+            putenv(sprintf('MYSQL_PWD=%s', $config->getPassword()));
         }
 
-        $user = $this->resolveUser($databaseConfiguration);
-        $host = $this->resolveHost($databaseConfiguration);
-        $port = $this->resolvePort($databaseConfiguration);
+        $user = $this->resolveUser($config);
+        $host = $this->resolveHost($config);
+        $port = $this->resolvePort($config);
 
         try {
-            $this->processExecutor->execute($this->getVerifyDatabaseCommand($user, $host, $port, $name));
+            $this->processExecutor->execute(
+                $this->getVerifyDatabaseCommand($user, $host, $port, $name),
+                $config->getTimeout()
+            );
 
             return true;
         } catch (\Exception $e) {
@@ -257,32 +267,32 @@ class MysqlDatabaseIsolator extends AbstractDatabaseIsolator
     }
 
     /**
-     * @param DatabaseConfigurationInterface $databaseConfiguration
+     * @param DatabaseConfigurationInterface $config
      *
      * @return string
      */
-    protected function resolveUser(DatabaseConfigurationInterface $databaseConfiguration)
+    protected function resolveUser(DatabaseConfigurationInterface $config)
     {
-        return $databaseConfiguration->getUser() ?: 'root';
+        return $config->getUser() ?: 'root';
     }
 
     /**
-     * @param DatabaseConfigurationInterface $databaseConfiguration
+     * @param DatabaseConfigurationInterface $config
      *
      * @return string
      */
-    protected function resolveHost(DatabaseConfigurationInterface $databaseConfiguration)
+    protected function resolveHost(DatabaseConfigurationInterface $config)
     {
-        return $databaseConfiguration->getHost() ?: '127.0.0.1';
+        return $config->getHost() ?: '127.0.0.1';
     }
 
     /**
-     * @param DatabaseConfigurationInterface $databaseConfiguration
+     * @param DatabaseConfigurationInterface $config
      *
      * @return int
      */
-    protected function resolvePort(DatabaseConfigurationInterface $databaseConfiguration)
+    protected function resolvePort(DatabaseConfigurationInterface $config)
     {
-        return $databaseConfiguration->getPort() ?: 3306;
+        return $config->getPort() ?: 3306;
     }
 }

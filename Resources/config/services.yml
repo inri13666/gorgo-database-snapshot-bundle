@@ -1,6 +1,3 @@
-imports:
-    - { resource: behat_services.yml }
-
 services:
     oro_datasnap.isolation.process_executor:
         public: false
@@ -12,7 +9,7 @@ services:
         arguments:
             - '@oro_datasnap.isolation.process_executor'
         tags:
-            - {name: oro.database.isolator, alias: pdo_mysql}
+            - {name: oro.database.isolator, alias: pdo_mysql, priority: 100}
 
     oro_datasnap.isolation.isolator.pdo_pgsql:
         class: 'Oro\Bundle\DatabaseSnapshotBundle\Isolator\Database\PgsqlDatabaseIsolator'
@@ -20,7 +17,7 @@ services:
         arguments:
             - '@oro_datasnap.isolation.process_executor'
         tags:
-            - {name: oro.database.isolator, alias: pdo_pgsql}
+            - {name: oro.database.isolator, alias: pdo_pgsql, priority: 100}
 
     oro_datasnap.isolation.isolator.registry:
         class: 'Oro\Bundle\DatabaseSnapshotBundle\Service\IsolatorRegistry'

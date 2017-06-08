@@ -22,6 +22,9 @@ class DatabaseConfigurationModel implements DatabaseConfigurationInterface
     /** @var string */
     protected $driver;
 
+    /** @var int */
+    protected $timeout = 240;
+
     /**
      * DatabaseConfigurationModel constructor.
      *
@@ -31,6 +34,7 @@ class DatabaseConfigurationModel implements DatabaseConfigurationInterface
      * @param null|string $user
      * @param null|string $password
      * @param null|string $dbName
+     * @param null|int $timeout
      */
     public function __construct(
         $driver = null,
@@ -38,7 +42,8 @@ class DatabaseConfigurationModel implements DatabaseConfigurationInterface
         $port = null,
         $user = null,
         $password = null,
-        $dbName = null
+        $dbName = null,
+        $timeout = 240
     ) {
         $this->driver = $driver;
         $this->host = $host;
@@ -46,6 +51,7 @@ class DatabaseConfigurationModel implements DatabaseConfigurationInterface
         $this->user = $user;
         $this->password = $password;
         $this->dbName = $dbName;
+        $this->timeout = $timeout;
     }
 
     /**
@@ -172,6 +178,26 @@ class DatabaseConfigurationModel implements DatabaseConfigurationInterface
     public function setDbName($dbName)
     {
         $this->dbName = $dbName;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTimeout()
+    {
+        return $this->timeout;
+    }
+
+    /**
+     * @param int $timeout
+     *
+     * @return $this
+     */
+    public function setTimeout($timeout)
+    {
+        $this->timeout = $timeout;
 
         return $this;
     }
