@@ -1,3 +1,6 @@
+imports:
+    - { resource: behat_services.yml, ignore_errors: true }
+
 services:
     oro_datasnap.isolation.process_executor:
         public: false
