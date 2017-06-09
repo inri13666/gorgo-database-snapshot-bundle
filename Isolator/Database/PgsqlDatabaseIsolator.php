@@ -255,7 +255,7 @@ class PgsqlDatabaseIsolator extends AbstractDatabaseIsolator
         );
 
         return sprintf(
-            '%s -U %s -h %s -p %d template1 -t -c "%s"',
+            '%s -U %s -h %s -p %d -d template1 -t -c "%s"',
             $this->psqlBin,
             $user,
             $host,
