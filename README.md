@@ -88,6 +88,7 @@ If your application have "Doctrine Bundle" then you able to use following comman
 - Add following lines to `Oro/Bundle/TestFrameworkBundle/Behat/ServiceContainer/config/kernel_services.yml`
 ```
     oro_behat.extension.isolation.database:
+        class: Oro\Bundle\DatabaseSnapshotBundle\Isolator\Behat\DatabaseBehatIsolator
         factory: ['@oro_test.kernel_service_factory', get]
         arguments: ['oro_datasnap.behat.extension.isolation.database']
         tags:
