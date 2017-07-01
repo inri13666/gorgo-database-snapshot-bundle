@@ -1,31 +1,28 @@
-imports:
-    - { resource: behat_services.yml, ignore_errors: true }
-
 services:
-    oro_datasnap.isolation.process_executor:
+    oro_datasnap.process_executor:
         public: false
-        class: 'Oro\Bundle\DatabaseSnapshotBundle\Service\ProcessExecutor'
+        class: 'Oro\Component\Database\Service\ProcessExecutor'
 
-    oro_datasnap.isolation.isolator.pdo_mysql:
-        class: 'Oro\Bundle\DatabaseSnapshotBundle\Isolator\Database\MysqlDatabaseIsolator'
-        public: false
-        arguments:
-            - '@oro_datasnap.isolation.process_executor'
-        tags:
-            - {name: oro.database.isolator, alias: pdo_mysql, priority: 100}
-
-    oro_datasnap.isolation.isolator.pdo_pgsql:
-        class: 'Oro\Bundle\DatabaseSnapshotBundle\Isolator\Database\PgsqlDatabaseIsolator'
+    oro_datasnap.engine.pdo_mysql:
+        class: 'Oro\Component\Database\Engine\MysqlDatabaseEngine'
         public: false
         arguments:
-            - '@oro_datasnap.isolation.process_executor'
+            - '@oro_datasnap.process_executor'
         tags:
-            - {name: oro.database.isolator, alias: pdo_pgsql, priority: 100}
+            - {name: oro.database.engine, alias: pdo_mysql, priority: 100}
 
-    oro_datasnap.isolation.isolator.registry:
-        class: 'Oro\Bundle\DatabaseSnapshotBundle\Service\IsolatorRegistry'
+    oro_datasnap.engine.pdo_pgsql:
+        class: 'Oro\Component\Database\Engine\PgsqlDatabaseEngine'
+        public: false
+        arguments:
+            - '@oro_datasnap.process_executor'
+        tags:
+            - {name: oro.database.engine, alias: pdo_pgsql, priority: 100}
+
+    oro_datasnap.engine.registry:
+        class: 'Oro\Component\Database\Service\DatabaseEngineRegistry'
         lazy: true
         #TODO : replace with compiller pass with priorities
         calls:
-            - ['addIsolator',['@oro_datasnap.isolation.isolator.pdo_mysql', 'pdo_mysql']]
-            - ['addIsolator',['@oro_datasnap.isolation.isolator.pdo_pgsql', 'pdo_pgsql']]
+            - ['addEngine',['@oro_datasnap.engine.pdo_mysql', 'pdo_mysql']]
+            - ['addEngine',['@oro_datasnap.engine.pdo_pgsql', 'pdo_pgsql']]

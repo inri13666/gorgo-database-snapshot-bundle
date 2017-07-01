@@ -20,16 +20,16 @@ class OroDatabaseSnapshotExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        if ($container->hasDefinition('oro_datasnap.isolation.isolator.pdo_mysql')) {
+        if ($container->hasDefinition('oro_datasnap.engine.pdo_mysql')) {
             $mysqlConfig = $config[Configuration::MYSQL_NODE];
-            $definition = $container->getDefinition('oro_datasnap.isolation.isolator.pdo_mysql');
+            $definition = $container->getDefinition('oro_datasnap.engine.pdo_mysql');
             $definition->addMethodCall('setMysqlBin', [$mysqlConfig[Configuration::MYSQL_BIN_NODE]]);
             $definition->addMethodCall('setMysqlDumpBin', [$mysqlConfig[Configuration::MYSQLDUMP_BIN_NODE]]);
         }
 
-        if ($container->hasDefinition('oro_datasnap.isolation.isolator.pdo_pgsql')) {
+        if ($container->hasDefinition('oro_datasnap.engine.pdo_pgsql')) {
             $pgsqlConfig = $config[Configuration::POSTGRESQL_NODE];
-            $definition = $container->getDefinition('oro_datasnap.isolation.isolator.pdo_pgsql');
+            $definition = $container->getDefinition('oro_datasnap.engine.pdo_pgsql');
             $definition->addMethodCall('setDropdbBin', [$pgsqlConfig[Configuration::DROPDB_BIN_NODE]]);
             $definition->addMethodCall('setCreatedbBin', [$pgsqlConfig[Configuration::CREATEDB_BIN_NODE]]);
             $definition->addMethodCall('setPsqlBin', [$pgsqlConfig[Configuration::PSQL_BIN_NODE]]);

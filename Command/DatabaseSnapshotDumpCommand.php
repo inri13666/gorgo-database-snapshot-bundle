@@ -3,7 +3,8 @@
 namespace Oro\Bundle\DatabaseSnapshotBundle\Command;
 
 use Doctrine\DBAL\Connection;
-use Oro\Bundle\DatabaseSnapshotBundle\Model\DatabaseConfigurationModel;
+
+use Oro\Component\Database\Model\DatabaseConfigurationModel;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -45,8 +46,8 @@ class DatabaseSnapshotDumpCommand extends ContainerAwareCommand
             ->setUser($connection->getUsername())
             ->setPassword($connection->getPassword());
 
-        $isolator = $this->getContainer()->get('oro_datasnap.isolation.isolator.registry')
-            ->findIsolator($configuration);
+        $isolator = $this->getContainer()->get('oro_datasnap.engine.registry')
+            ->findEngine($configuration);
         $sid = $input->getOption('id');
         $isolator->dump($sid, $configuration);
         $output->writeln(sprintf('Generated dump with sid <info>%s</info>', $sid));
